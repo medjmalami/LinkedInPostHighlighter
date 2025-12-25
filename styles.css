@@ -1,0 +1,9 @@
+.linkedin-recent-post {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+  border-left: 4px solid #22c55e !important;
+  transition: background-color 0.3s ease !important;
+}
+
+.linkedin-recent-post:hover {
+  background-color: rgba(34, 197, 94, 0.25) !important;
+}

@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
-  "name": "LinkedIn Recent Posts Highlighter",
-  "version": "1.0",
-  "description": "Highlights LinkedIn posts from the last 24 hours in green",
+  "name": "LinkedIn Viral Post Highlighter",
+  "version": "2.0",
+  "description": "Highlights recent LinkedIn posts and detects viral content using engagement metrics",
   "permissions": ["activeTab"],
   "content_scripts": [
     {
       "matches": ["*://*.linkedin.com/*"],
-      "js": ["content.js"],
+      "js": ["helpers.js", "content.js"],
       "css": ["styles.css"]
     }
   ],

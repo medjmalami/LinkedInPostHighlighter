@@ -7,3 +7,40 @@
 .linkedin-recent-post:hover {
   background-color: rgba(34, 197, 94, 0.25) !important;
 }
+
+/* Viral posts - different colors based on viral level */
+.linkedin-viral-post {
+  position: relative !important;
+}
+
+.linkedin-viral-low {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+  border-left: 4px solid #fbbf24 !important;
+}
+
+.linkedin-viral-low:hover {
+  background-color: rgba(251, 191, 36, 0.25) !important;
+}
+
+.linkedin-viral-medium {
+  background-color: rgba(249, 115, 22, 0.15) !important;
+  border-left: 4px solid #f97316 !important;
+}
+
+.linkedin-viral-medium:hover {
+  background-color: rgba(249, 115, 22, 0.25) !important;
+}
+
+.linkedin-viral-high {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+.linkedin-viral-high:hover {
+  background-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+/* If a post is both recent AND viral, viral takes priority */
+.linkedin-viral-post.linkedin-recent-post {
+  border-left-width: 6px !important;
+}

@@ -1,54 +1,6 @@
-// manifest.json
-
-
-// content.js
+// content.js - Main script for LinkedIn viral post highlighting
 (function() {
   'use strict';
-
-  function parseRelativeTime(timeText) {
-    if (!timeText) return null;
-    
-    // Remove bullet point and spaces, get just the timestamp
-    const text = timeText.replace(/•/g, '').trim().toLowerCase();
-    const now = Date.now();
-    
-    // Match LinkedIn's exact format: number + single letter (1m, 3w, 2d, 5h, etc.)
-    const match = text.match(/^(\d+)([smhdw])$/);
-    
-    if (!match) return null;
-    
-    const value = parseInt(match[1]);
-    const unit = match[2];
-    
-    let milliseconds = 0;
-    
-    switch(unit) {
-      case 's':
-        milliseconds = value * 1000;
-        break;
-      case 'm':
-        milliseconds = value * 60 * 1000;
-        break;
-      case 'h':
-        milliseconds = value * 60 * 60 * 1000;
-        break;
-      case 'd':
-        milliseconds = value * 24 * 60 * 60 * 1000;
-        break;
-      case 'w':
-        milliseconds = value * 7 * 24 * 60 * 60 * 1000;
-        break;
-    }
-    
-    return now - milliseconds;
-  }
-
-  function isWithin24Hours(timestamp) {
-    if (!timestamp) return false;
-    const now = Date.now();
-    const twentyFourHours = 24 * 60 * 60 * 1000;
-    return (now - timestamp) < twentyFourHours;
-  }
 
   function highlightRecentPosts() {
     // Find all post containers - LinkedIn uses various selectors
@@ -68,24 +20,15 @@
     // Remove duplicates
     posts = [...new Set(posts)];
     
-    console.log('[LinkedIn Highlighter] Found', posts.length, 'posts');
-    
-    posts.forEach((post, index) => {
+    posts.forEach((post) => {
       // Skip if already processed
       if (post.dataset.highlightProcessed) return;
       post.dataset.highlightProcessed = 'true';
       
-      console.log(`[Post ${index}] Analyzing post...`);
+      let parsedTime = null;
       
-      // Get ALL text content from the post and log first 100 chars
-      const allText = post.textContent.substring(0, 200);
-      console.log(`[Post ${index}] Preview:`, allText);
-      
-      let isRecent = false;
-      
-      // Search through ALL spans in the post
+      // Search through ALL spans in the post to find timestamp
       const allSpans = post.querySelectorAll('span');
-      console.log(`[Post ${index}] Found ${allSpans.length} span elements`);
       
       for (let span of allSpans) {
         const timeText = span.textContent.trim();
@@ -96,23 +39,33 @@
         
         if (timestampMatch) {
           const timestamp = timestampMatch[1]; // e.g., "3h", "2w", "6d"
-          console.log(`[Post ${index}] ✓ TIMESTAMP MATCH: "${timestamp}" (from: "${timeText}")`);
-          
-          const parsedTime = parseRelativeTime(timestamp);
-          
-          if (isWithin24Hours(parsedTime)) {
-            console.log(`[Post ${index}] ✓✓ WITHIN 24 HOURS - HIGHLIGHTING!`);
-            isRecent = true;
-            break;
-          } else {
-            console.log(`[Post ${index}] Timestamp too old (${timestamp})`);
-          }
+          parsedTime = parseRelativeTime(timestamp);
+          break;
         }
       }
       
-      if (isRecent) {
-        post.classList.add('linkedin-recent-post');
+      // Only process posts within 24 hours
+      if (!isWithin24Hours(parsedTime)) return;
+      
+      // Extract engagement metrics
+      const { likes, comments } = extractEngagementMetrics(post);
+      
+      // If we have engagement data, calculate viral score
+      if (likes > 0 || comments > 0) {
+        const hours = getHoursFromTimestamp(parsedTime);
+        const viralScore = calculateViralScore(likes, comments, hours);
+        const viralLevel = getViralLevel(viralScore);
+        
+        if (viralLevel) {
+          // Apply viral styling (takes priority over recent)
+          post.classList.add('linkedin-viral-post');
+          post.classList.add(`linkedin-viral-${viralLevel}`);
+          return;
+        }
       }
+      
+      // Fallback: not viral or no engagement data, show as recent post
+      post.classList.add('linkedin-recent-post');
     });
   }
 
@@ -136,4 +89,3 @@
     subtree: true
   });
 })();
-
